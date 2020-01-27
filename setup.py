@@ -1,5 +1,5 @@
 from setuptools import setup
-
+import glob
 
 setup(name='hstdputils',
       version='0.1',
@@ -9,4 +9,5 @@ setup(name='hstdputils',
       author_email='jmiller@stsci.edu',
       license='MIT',
       packages=['hstdputils'],
+      scripts=glob.glob("scripts/*"),
       zip_safe=False)
