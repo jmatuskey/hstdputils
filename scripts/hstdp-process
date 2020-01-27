@@ -7,5 +7,7 @@ cat process.out
 echo ---------------------------------------- program metrics ---------------------------------------------
 cat metrics.out
 
-aws s3 cp  process.out  metrics.out ${bucket}/${prefix}/
+aws s3 cp  process.out  ${bucket}/${prefix}/
+aws s3 cp  metrics.out  ${bucket}/${prefix}/
+
 
