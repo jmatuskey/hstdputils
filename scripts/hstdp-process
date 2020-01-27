@@ -1,4 +1,4 @@
-#! /bin/bash
+#! /bin/bash 
 
 /usr/bin/time --verbose -o metrics.out /bin/bash -c "( python -m hstdputils.process $* ) >& process.out"
 
@@ -6,6 +6,9 @@ echo ---------------------------------------- processing log -------------------
 cat process.out
 echo ---------------------------------------- program metrics ---------------------------------------------
 cat metrics.out
+
+export bucket=$1
+export prefix=$2
 
 aws s3 cp  process.out  ${bucket}/${prefix}/
 aws s3 cp  metrics.out  ${bucket}/${prefix}/
