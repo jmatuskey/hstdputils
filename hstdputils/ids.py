@@ -75,10 +75,13 @@ def _get_instrument(instrument_or_ipppssoot):
 # ----------------------------------------------------------------------
 
 SUFFIX = {
+    "acs" : [ "RAW" ],
     "cos" : [ "RAW", "RAWACCUM", "RAWACCUM_A", "RAWACCUM_B", "RAWACQ", "RAWTAG", "RAWTAG_A", "RAWTAG_B"],
-    }
+    "stis" : [ "RAW", "TAG",  "WAV" ],
+    "wfc3" : [ "RAW" ],
+}
 
-DEFAULT_SUFFIX = ["ASN", "RAW"]
+DEFAULT_SUFFIX = ["RAW"]
 
 def get_suffix(instrument_or_ipppssoot):
     """Given an IPPPSSOOT ID or instrument name,  return the corresponding
@@ -91,13 +94,13 @@ def get_suffix(instrument_or_ipppssoot):
     ['RAW', 'RAWACCUM', 'RAWACCUM_A', 'RAWACCUM_B', 'RAWACQ', 'RAWTAG', 'RAWTAG_A', 'RAWTAG_B']
 
     >>> get_suffix('STIS')
-    ['ASN', 'RAW']
+    ['RAW', 'TAG', 'WAV']
 
     >>> get_suffix('o8jhg2nnq')
-    ['ASN', 'RAW']
+    ['RAW', 'TAG', 'WAV']
     """
     instrument = _get_instrument(instrument_or_ipppssoot)
-    return SUFFIX.get(instrument, DEFAULT_SUFFIX)
+    return SUFFIX[instrument]
 
 def get_file_suffix(instrument_or_ipppssoot):
     suffix = get_suffix(instrument_or_ipppssoot)
