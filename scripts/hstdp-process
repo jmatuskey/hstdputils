@@ -4,7 +4,7 @@
 printenv 
 
 # =========================================================================================================
-/usr/bin/time --verbose -o metrics.out /bin/bash -c "( python -m hstdputils.process $* ) >& process.out"
+/usr/bin/time --verbose -o metrics.out /bin/bash -c "( python -m hstdputils.process $* ) |& tee process.out"
 
 # =========================================================================================================
 echo ---------------------------------------- processing log ----------------------------------------------
