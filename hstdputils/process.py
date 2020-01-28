@@ -2,7 +2,8 @@ import os
 import sys
 import glob
 
-from . import download
+from drizzlepac.hlautils.astroquery_utils import retrieve_observation
+
 from . import bestrefs
 from . import s3
 from . import ids
@@ -18,20 +19,29 @@ def process(ipppssoot, output_bucket=None, prefix=None):
     Nominally `prefix` identifies a job or batch of files dumped into an 
     otherwise immense bucket.
     """
-    files = download.download(ipppssoot)
-
+    files = retrieve_observation(ipppssoot, suffix=ids.get_suffix(ipppssoot))
     info = planner.id_info(ipppssoot)
 
     for filename in planner.process_files(info, files):
         bestrefs.assign_bestrefs(filename)
-        err = os.system(info.executable + " " + filename)
+        run(info.executable + " " + filename)
 
+    asns = retrieve_observation(ipppssoot, suffix=["ASN"])
+    for filename in asns:
+        run("runastrodriz " + filename)
+        
     all = glob.glob("*.fits")
-    outputs = list(set(all) - set(files))
+    outputs = list(set(all) - set(files) - set(asns))
     
     output_files(outputs, output_bucket, prefix)
     
     return outputs
+
+def run(*args):
+    err = os.system(*args)
+    if err != 0:
+        print("Processing failed with exit status: ", err, file=sys.stderr)
+        sys.exit(err)
 
 def process_ipppssoots(ipppssoots, output_bucket=None, prefix=None):
     for ipppssoot in ipppssoots:

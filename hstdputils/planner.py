@@ -29,6 +29,8 @@ def id_info(ipppssoot):
     return IdInfo(ipppssoot, instr, program,  str(cpus),  str(memory),  str(seconds))
 
 def process_files(info, files):
+    """Given a list of files,  return the reduced list of files which should be processed.
+    """
     return [ filename for filename in files
              if filename.endswith(ids.get_file_suffix(info.ipppssoot)) ]
 
@@ -40,4 +42,7 @@ def test():
     return doctest.testmod(planner)
 
 if __name__ == "__main__":
-    print(test())
+    if sys.argv[0] == "test":
+        print(test())
+    else:
+        plan(sys.argv[1:])
