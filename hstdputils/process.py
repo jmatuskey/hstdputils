@@ -19,6 +19,9 @@ def process(ipppssoot, output_bucket=None, prefix=None):
     Nominally `prefix` identifies a job or batch of files dumped into an 
     otherwise immense bucket.
     """
+    print("."*35, f"Processing {ipppssoot}", "."*35, file=sys.stderr)
+    sys.stderr.flush()
+    
     files = retrieve_observation(ipppssoot, suffix=ids.get_suffix(ipppssoot))
     info = planner.id_info(ipppssoot)
 
