@@ -1,6 +1,7 @@
 import os
 import sys
 import glob
+import re
 
 from drizzlepac.hlautils.astroquery_utils import retrieve_observation
 
@@ -10,6 +11,8 @@ from . import s3
 from . import log
 
 # -----------------------------------------------------------------------------
+
+IPPPSSOOT_RE = re.compile(r"^[IJLO][A-Z0-9]{8,8}$")
 
 IPPPSSOOT_INSTR = {
     "J" : "acs",

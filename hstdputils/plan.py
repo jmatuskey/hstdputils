@@ -31,7 +31,10 @@ def id_info(ipppssoot):
 def planner(output_bucket, batch_prefix, ipppssoots):
     batch_name = get_batch_name(batch_prefix)
     for ipppssoot in ipppssoots:
-        print(plan(output_bucket, batch_name, ipppssoot))
+        if process.IPPPSSOOT_RE.match(ipppssoot.upper()):
+            print(plan(output_bucket, batch_name, ipppssoot))
+        else:
+            print(ipppssoot, file=sys.stderr)
 
 def plan(output_bucket, batch_prefix, ipppssoot):
     prefix = batch_prefix + "/" + ipppssoot
