@@ -96,7 +96,7 @@ class InstrumentManager:
     def output_files(self, outputs, output_bucket=None, prefix=None):
         self.divider("Saving outputs:", outputs)
         if output_bucket:
-            for filename in files:
+            for filename in outputs:
                 log.info("Saving:", filename)
                 s3.upload_filename(filename, output_bucket, prefix=prefix)
 
