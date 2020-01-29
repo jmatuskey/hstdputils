@@ -1,15 +1,21 @@
 #! /bin/bash
 
+# hstdp-process  s3-output-bucket   batch-name    ipppssoots....
+
 # =========================================================================================================
 echo ---------------------------------------- Environment ----------------------------------------------
 echo "User is" `whoami`
 echo "Current dir is" `pwd`
 printenv
 ls -ld .
-echo ---------------------------------------- processing log ----------------------------------------------
 
 # =========================================================================================================
-/usr/bin/time --verbose -o metrics.out /bin/bash -c "( python -m hstdputils.process $* ) |& tee process.out"
+echo ---------------------------------------- processing log ----------------------------------------------
+/usr/bin/time --verbose -o metrics.out /bin/bash -c "set -o pipefail && ( python -m hstdputils.process $* ) |& tee process.out"
+exit_status=$?
+
+# set -o pipefail  && python -m hstdputils.process $* |& tee process.out
+
 
 # =========================================================================================================
 echo ---------------------------------------- program metrics ---------------------------------------------
@@ -23,5 +29,5 @@ if [ $bucket != "none" ]; then
     aws s3 cp  --quiet metrics.out  ${bucket}/${prefix}/
 fi
 
-
+exit $exit_status
 

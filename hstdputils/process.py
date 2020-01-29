@@ -82,7 +82,7 @@ class InstrumentManager:
         err = os.system(cmd)
         if err:
             log.error("Command:", repr(cmd), "exited with non-zero error status:", err)
-            sys.exit(err)
+            sys.exit(1) # should be 0-127,  higher err val's like 512 are truncated to 0 by shells
 
     def process(self, ipppssoot, files):
         assoc = [f for f in files if f.endswith("_asn.fits")]

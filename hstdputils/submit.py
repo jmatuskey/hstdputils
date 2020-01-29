@@ -39,6 +39,9 @@ def submit_job(plan):
 
 
 def main(plan_file):
+    """Given a file `plan_file` defining job plan tuples one-per-line,  
+    submit each job and output the plan and submission response to stdout.
+    """
     with open(plan_file) as f:
         for line in f.readlines():
             job_plan = eval(line)
