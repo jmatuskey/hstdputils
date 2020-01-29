@@ -28,12 +28,6 @@ def id_info(ipppssoot):
     seconds = 60*60
     return IdInfo(ipppssoot, instr, program,  str(cpus),  str(memory),  str(seconds))
 
-def process_files(info, files):
-    """Given a list of files,  return the reduced list of files which should be processed.
-    """
-    return [ filename for filename in files
-             if filename.endswith(ids.get_file_suffix(info.ipppssoot)) ]
-
 # ----------------------------------------------------------------------
 
 def test():

@@ -75,10 +75,10 @@ def _get_instrument(instrument_or_ipppssoot):
 # ----------------------------------------------------------------------
 
 SUFFIX = {
-    "acs" : [ "RAW" ],
-    "cos" : [ "RAW", "RAWACCUM", "RAWACCUM_A", "RAWACCUM_B", "RAWACQ", "RAWTAG", "RAWTAG_A", "RAWTAG_B"],
-    "stis" : [ "RAW", "TAG",  "WAV" ],
-    "wfc3" : [ "RAW" ],
+    "acs" : [ "ASN", "RAW" ],
+    "cos" : [ "ASN", "RAW", "EPC", "RAWACCUM", "RAWACCUM_A", "RAWACCUM_B", "RAWACQ", "RAWTAG", "RAWTAG_A", "RAWTAG_B"],
+    "stis" : [ "ASN", "RAW", "EPC", "TAG",  "WAV" ], 
+    "wfc3" : [ "ASN", "RAW" ],
 }
 
 DEFAULT_SUFFIX = ["RAW"]
@@ -88,23 +88,31 @@ def get_suffix(instrument_or_ipppssoot):
     suffixes which should be fetched for reprocessing using
 
     >>> get_suffix('cos')
-    ['RAW', 'RAWACCUM', 'RAWACCUM_A', 'RAWACCUM_B', 'RAWACQ', 'RAWTAG', 'RAWTAG_A', 'RAWTAG_B']
+    ['ASN','RAW', 'EPC', 'RAWACCUM', 'RAWACCUM_A', 'RAWACCUM_B', 'RAWACQ', 'RAWTAG', 'RAWTAG_A', 'RAWTAG_B']
     
     >>> get_suffix('LCYID1030')
-    ['RAW', 'RAWACCUM', 'RAWACCUM_A', 'RAWACCUM_B', 'RAWACQ', 'RAWTAG', 'RAWTAG_A', 'RAWTAG_B']
+    ['ASN', 'RAW', 'EPC', 'RAWACCUM', 'RAWACCUM_A', 'RAWACCUM_B', 'RAWACQ', 'RAWTAG', 'RAWTAG_A', 'RAWTAG_B']
 
     >>> get_suffix('STIS')
-    ['RAW', 'TAG', 'WAV']
+    ['ASN', 'RAW', 'EPC', 'TAG', 'WAV']
 
     >>> get_suffix('o8jhg2nnq')
-    ['RAW', 'TAG', 'WAV']
+    ['ASN', 'RAW', 'EPC', 'TAG', 'WAV']
     """
     instrument = _get_instrument(instrument_or_ipppssoot)
     return SUFFIX[instrument]
 
-def get_file_suffix(instrument_or_ipppssoot):
+def get_bestrefs_suffix(instrument_or_ipppssoot):
+    """Return the tuple of file suffixes bestrefs should process suitable for use with .endswith().
+    >>> get_bestrefs_suffix("acs")
+    >>> get_bestrefs_suffix("cos")
+    >>> get_bestrefs_suffix("stis")
+    >>> get_bestrefs_suffix("wfc3")
+    """
     suffix = get_suffix(instrument_or_ipppssoot)
-    filesuffix = tuple([ "_" + s.lower() + ".fits" for s in suffix ])
+    filesuffix = tuple(
+        [ "_" + s.lower() + ".fits" for s in suffix
+          if "RAW" in ])
     return filesuffix
 
 # ----------------------------------------------------------------------
@@ -112,7 +120,7 @@ def get_file_suffix(instrument_or_ipppssoot):
 EXECUTABLE = {
     "acs" : "calacs.e",
     "cos" : "calcos",
-    "stis" : "python -m stistools.calstis",
+    "stis" : "cs0.e -tv",
     "wfc3" : "calwf3.e",
     }
 
@@ -122,10 +130,10 @@ def  get_executable(instrument_or_ipppssoot):
     'calacs.e'
 
     >>> get_executable('O8JHG2NNQ')
-    'calstis.e'
+    'cs0.e -tv'
     """
     instrument = _get_instrument(instrument_or_ipppssoot)
-    return EXECUTABLE.get(instrument, "cal" + instrument + ".e")    
+    return EXECUTABLE[instrument]
 
 # ----------------------------------------------------------------------
 

@@ -4,10 +4,139 @@ import glob
 
 from drizzlepac.hlautils.astroquery_utils import retrieve_observation
 
-from . import bestrefs
+from crds.bestrefs import bestrefs
+
 from . import s3
-from . import ids
-from . import planner
+
+# -----------------------------------------------------------------------------
+
+IPPPSSOOT_INSTR = {
+    "J" : "acs",
+    "U" : "wfpc2",
+    "V" : "hsp",
+    "W" : "wfpc",
+    "X" : "foc",
+    "Y" : "fos",
+    "Z" : "hrs",
+    "E" : "eng",
+    "F" : "fgs",
+    "I" : "wfc3",
+    "N" : "nicmos",
+    "O" : "stis",
+    "L" : "cos",
+}
+
+INSTRUMENTS = set(IPPPSSOOT_INSTR.values())
+
+def get_instrument(ipppssoot):
+    """Given an IPPPSSOOT ID, return the corresponding instrument.
+
+    >>> get_instrument("JBW2BGNKQ")
+    'acs'
+    
+    >>> get_instrument("LCYID1030")
+    'cos'
+
+    >>> get_instrument("O8JHG2NNQ")
+    'stis'
+
+    >>> get_instrument("IDDE02XSQ")
+    'wfc3'
+    """
+    if ipppssoot.lower() in INSTRUMENTS:
+        return ipppssoot.lower()
+    else:
+        return IPPPSSOOT_INSTR.get(ipppssoot.upper()[0])
+
+# -----------------------------------------------------------------------------
+
+class InstrumentManager:
+    name = None # abstract class
+    suffixes = None
+    
+    def dowload(self, ipppssoot):
+        return retrieve_observation(ipppssoot, suffix=self.suffixes)
+
+    def assign_bestrefs(self, ipppssoot, files):
+        bestrefs_files = self.raw_files(files)
+        bestrefs.assign_bestrefs(bestrefs_files, sync_references=True)
+        return bestrefs_files
+
+    def run(self, *args):
+        print("Running:", " ".join(args), file=sys.stderr)
+        err = os.system(" ".join(args))
+        if err:
+            print("Command", args, "exited with non-zero error status:", err, file=sys.stderr)
+            sys.exit(err)
+
+    def process(self, ipppssoot, files):
+        assoc = [f for f in files if f.endswith("_asn.fits")]
+        if assoc:
+            self.run(self.stage1, *assoc)
+            if self.stage2:
+                self.run(self.stage2, *assoc)
+        else:
+            self.run(self.stage1, *self.raw_files(files))
+            
+    def raw_files(self, files):
+        return [f for f in files if "_raw" in f]
+
+# -----------------------------------------------------------------------------
+
+class AcsManager(InstrumentManager):
+    name = "acs"
+    suffixes = ["ASN", "RAW"]
+    stage1 = "calacs.e"
+    stage2 = "runastrodriz"
+    
+class Wfc3Manager(InstrumentManager):
+    name = "wfc3"
+    suffixes = ["ASN", "RAW"]
+    stage1 = "calwf3.e"
+    stage2 = "runastrodriz"
+
+# ............................................................................
+    
+class CosManager(InstrumentManager):
+    name = "cos"
+    suffixes = ["ASN", "RAW", "EPC", "RAWACCUM", "RAWACCUM_A", "RAWACCUM_B", "RAWACQ", "RAWTAG", "RAWTAG_A", "RAWTAG_B"]
+    stage1 = "calcos"
+    stage2 = None
+
+    def raw_files(self, files):
+        return [ f for f in files if f.endswith("_raw.fits") ][0]   # return only first file
+    
+# ............................................................................
+    
+class StisManager(InstrumentManager):
+    name = "stis"
+    suffixes = ["ASN", "RAW", "EPC", "TAG",  "WAV"]
+    stage1 = "cs0.e -tv"
+    stage2 = None
+
+    def process(self, ipppssoot, files):
+        raw = [ f for f in files if f.endswith("_raw.fits")]
+        wav = [ f for f in files if f.endswith("_wav.fits")]
+        if raw:
+            self.run(self.stage1, *raw)
+        else:
+            self.run(self.stage1, *wav)
+
+    def raw_files(self, files):
+        return [f for f in files if f.endswith(('_raw.fits','_wav.fits','_tag.fits'))]
+
+# ............................................................................
+    
+MANAGERS = {
+    "acs" : AcsManager(),
+    "cos" : CosManager(),
+    "stis" : StisManager(),
+    "wfc3" : Wfc3Manager(),
+    }
+
+def get_instrument_manager(ipppssoot):
+    instrument = get_instrument(ipppssoot)
+    return MANAGERS[instrument]
 
 # -----------------------------------------------------------------------------
 
@@ -22,29 +151,22 @@ def process(ipppssoot, output_bucket=None, prefix=None):
     print("."*35, f"Processing {ipppssoot}", "."*35, file=sys.stderr)
     sys.stderr.flush()
     
-    files = retrieve_observation(ipppssoot, suffix=ids.get_suffix(ipppssoot))
-    info = planner.id_info(ipppssoot)
+    manager = get_instrument_manager(ipppssoot)
 
-    for filename in planner.process_files(info, files):
-        bestrefs.assign_bestrefs(filename)
-        run(info.executable + " " + filename)
+    files = manager.dowload(ipppssoot)
 
-    asns = retrieve_observation(ipppssoot, suffix=["ASN"])
-    for filename in asns:
-        run("runastrodriz " + filename)
-        
+    manager.assign_bestrefs(ipppssoot, files)
+    
+    manager.process(ipppssoot, files)
+    
     all = glob.glob("*.fits")
-    outputs = list(set(all) - set(files) - set(asns))
+    outputs = list(set(all) - set(files))
     
     output_files(outputs, output_bucket, prefix)
     
     return outputs
 
-def run(*args):
-    err = os.system(*args)
-    if err != 0:
-        print("Processing failed with exit status: ", err, file=sys.stderr)
-        sys.exit(err)
+# -----------------------------------------------------------------------------
 
 def process_ipppssoots(ipppssoots, output_bucket=None, prefix=None):
     for ipppssoot in ipppssoots:
