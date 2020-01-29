@@ -7,6 +7,7 @@ from drizzlepac.hlautils.astroquery_utils import retrieve_observation
 from crds.bestrefs import bestrefs
 
 from . import s3
+from . import log
 
 # -----------------------------------------------------------------------------
 
@@ -53,20 +54,31 @@ def get_instrument(ipppssoot):
 class InstrumentManager:
     name = None # abstract class
     suffixes = None
-    
-    def dowload(self, ipppssoot):
-        return retrieve_observation(ipppssoot, suffix=self.suffixes)
 
+    def divider(self, *args, dash="-"):
+        msg = " ".join([str(a) for a in args])
+        dashes = (100-len(msg)-2-5)
+        log.info("-"*5, msg, "-"*dashes)
+        
+    def dowload(self, ipppssoot):
+        self.divider("Retrieving files for:", ipppssoot)
+        files = retrieve_observation(ipppssoot, suffix=self.suffixes)
+        self.divider("Downioad complete for:", ipppssoot)
+        return files
+        
     def assign_bestrefs(self, ipppssoot, files):
+        self.divider("Computing bestrefs for:", ipppssoot, files)
         bestrefs_files = self.raw_files(files)
         bestrefs.assign_bestrefs(bestrefs_files, sync_references=True)
+        self.divider("Bestrefs complete for:", ipppssoot)
         return bestrefs_files
 
     def run(self, *args):
-        print("Running:", " ".join(args), file=sys.stderr)
-        err = os.system(" ".join(args))
+        self.divider("Running:", *args)
+        cmd = " ".join(args)
+        err = os.system(cmd)
         if err:
-            print("Command", args, "exited with non-zero error status:", err, file=sys.stderr)
+            log.error("Command:", repr(cmd), "exited with non-zero error status:", err)
             sys.exit(err)
 
     def process(self, ipppssoot, files):
@@ -80,6 +92,13 @@ class InstrumentManager:
             
     def raw_files(self, files):
         return [f for f in files if "_raw" in f]
+
+    def output_files(self, outputs, output_bucket=None, prefix=None):
+        self.divider("Saving outputs:", outputs)
+        if output_bucket:
+            for filename in files:
+                log.info("Saving:", filename)
+                s3.upload_filename(filename, output_bucket, prefix=prefix)
 
 # -----------------------------------------------------------------------------
 
@@ -104,7 +123,7 @@ class CosManager(InstrumentManager):
     stage2 = None
 
     def raw_files(self, files):
-        return [ f for f in files if f.endswith("_raw.fits") ][0]   # return only first file
+        return super(CosManager, self).raw_files(files)[:1]   # return only first file
     
 # ............................................................................
     
@@ -136,7 +155,9 @@ MANAGERS = {
 
 def get_instrument_manager(ipppssoot):
     instrument = get_instrument(ipppssoot)
-    return MANAGERS[instrument]
+    manager = MANAGERS[instrument]
+    manager.divider("Started processing for", instrument, ":", ipppssoot)
+    return manager
 
 # -----------------------------------------------------------------------------
 
@@ -148,9 +169,6 @@ def process(ipppssoot, output_bucket=None, prefix=None):
     Nominally `prefix` identifies a job or batch of files dumped into an 
     otherwise immense bucket.
     """
-    print("."*35, f"Processing {ipppssoot}", "."*35, file=sys.stderr)
-    sys.stderr.flush()
-    
     manager = get_instrument_manager(ipppssoot)
 
     files = manager.dowload(ipppssoot)
@@ -161,8 +179,8 @@ def process(ipppssoot, output_bucket=None, prefix=None):
     
     all = glob.glob("*.fits")
     outputs = list(set(all) - set(files))
-    
-    output_files(outputs, output_bucket, prefix)
+
+    manager.output_files(outputs, output_bucket, prefix)
     
     return outputs
 
@@ -174,15 +192,14 @@ def process_ipppssoots(ipppssoots, output_bucket=None, prefix=None):
 
 # -----------------------------------------------------------------------------
 
-def output_files(files, output_bucket=None, prefix=None):
-    if output_bucket:
-        for filename in files:
-            s3.upload_filename(filename, output_bucket, prefix=prefix)
-
 # -----------------------------------------------------------------------------
 
 if __name__ == "__main__":
     output_bucket = sys.argv[1]
     prefix = sys.argv[2]
     ipppssoots = sys.argv[3:]
+    if output_bucket.lower() == "none":
+        output_bucket = None
+    if prefix.lower() == "none":
+        prefix = None
     process_ipppssoots(ipppssoots, output_bucket, prefix)

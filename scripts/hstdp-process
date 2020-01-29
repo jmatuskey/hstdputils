@@ -18,7 +18,10 @@ cat metrics.out
 # =========================================================================================================
 export bucket=$1
 export prefix=$2
-aws s3 cp  --quiet process.out  ${bucket}/${prefix}/
-aws s3 cp  --quiet metrics.out  ${bucket}/${prefix}/
+if [ $bucket != "none" ]; then
+    aws s3 cp  --quiet process.out  ${bucket}/${prefix}/
+    aws s3 cp  --quiet metrics.out  ${bucket}/${prefix}/
+fi
+
 
 
