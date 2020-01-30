@@ -1,0 +1,9 @@
+#! /bin/bash
+
+# Docker doesn't seem to notice updates to the hstdputils github repo for pip install,
+# so blow away old image to ensure rebuild.
+docker image rm jaytmiller/hstdp-calcloud
+
+docker build -t jaytmiller/hstdp-calcloud .
+
+

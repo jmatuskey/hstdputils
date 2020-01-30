@@ -2,13 +2,11 @@ import sys
 
 import boto3
 
-QUEUE = "arn:aws:batch:us-east-1:162808325377:job-queue/hstdp-batch-queue"
-JOB_DEFINITION = "arn:aws:batch:us-east-1:162808325377:job-definition/hstdp-ipppssoot-job:10"
+# QUEUE = "arn:aws:batch:us-east-1:162808325377:job-queue/hstdp-batch-queue"
+# JOB_DEFINITION = "arn:aws:batch:us-east-1:162808325377:job-definition/hstdp-ipppssoot-job:10"
 
-# DOCKER_IMAGE = "jaytmiller/hstdp-calcloud:latest",
-# JOB_ROLE = "arn:aws:iam::162808325377:role/HSTDP-BatchJobRole"
-# USER = "root"
-
+QUEUE = "hstdp-batch-queue"
+JOB_DEFINITION = "hstdp-ipppssoot-job"
 
 def submit_job(plan):
     """Given a job description tuple `plan` from the planner,  submit a job to AWS batch."""
@@ -28,8 +26,6 @@ def submit_job(plan):
                 prefix,
                 ipppssoot
             ],
-            # "jobRoleArn": JOB_ROLE,
-            # "user": USER,
         },
         "timeout": {
             "attemptDurationSeconds": seconds,
