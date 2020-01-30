@@ -12,6 +12,9 @@ echo "Current dir is" `pwd`
 printenv | sort
 ls -ld .
 
+echo ---------------------------------------- CRDS Config ----------------------------------------------
+crds list --config
+
 # =========================================================================================================
 echo ---------------------------------------- processing log ----------------------------------------------
 /usr/bin/time --verbose -o metrics.out /bin/bash -c "set -o pipefail && ( python -m hstdputils.process $* ) |& tee process.out"
