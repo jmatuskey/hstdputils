@@ -3,7 +3,7 @@ import sys
 import boto3
 
 QUEUE = "arn:aws:batch:us-east-1:162808325377:job-queue/hstdp-batch-queue"
-JOB_DEFINITION = "arn:aws:batch:us-east-1:162808325377:job-definition/hstdp-ipppssoot-job:9"
+JOB_DEFINITION = "arn:aws:batch:us-east-1:162808325377:job-definition/hstdp-ipppssoot-job:10"
 
 # DOCKER_IMAGE = "jaytmiller/hstdp-calcloud:latest",
 # JOB_ROLE = "arn:aws:iam::162808325377:role/HSTDP-BatchJobRole"
