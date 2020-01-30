@@ -2,11 +2,14 @@
 
 # hstdp-process  s3-output-bucket   batch-name    ipppssoots....
 
+source hstdputils-s3-env
+source hstdputils-cal-env
+
 # =========================================================================================================
 echo ---------------------------------------- Environment ----------------------------------------------
 echo "User is" `whoami`
 echo "Current dir is" `pwd`
-printenv
+printenv | sort
 ls -ld .
 
 # =========================================================================================================
