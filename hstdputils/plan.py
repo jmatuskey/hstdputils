@@ -15,10 +15,10 @@ def get_batch_name(name):
 IdInfo = namedtuple("IdInfo", ["ipppssoot", "instrument", "executable", "cpus", "memory", "max_seconds"])
 
 JOB_INFO = {
-    "acs" : ("acs", "hstdp-process", 4, 8*1024, 60*60*4),
-    "cos" : ("cos", "hstdp-process", 1, 2*1024, 60*20),
-    "stis" : ("stis", "hstdp-process", 1, 2*1024, 60*20),
-    "wfc3" : ("wfc3", "hstdp-process", 4, 8*1024, 60*60*4),
+    "acs" : ("acs", "hstdp-process", 4, 2*1024, 60*60*4),
+    "cos" : ("cos", "hstdp-process", 1, 1*1024, 60*20),
+    "stis" : ("stis", "hstdp-process", 1, 1*1024, 60*20),
+    "wfc3" : ("wfc3", "hstdp-process", 4, 2*1024, 60*60*4),
     }
 
 def id_info(ipppssoot):
