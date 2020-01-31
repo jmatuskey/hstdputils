@@ -18,12 +18,67 @@ perhaps Lambdas) and within the hstdp-container.  Provides generalized
 processing for HST IPPPSSOOT's, Batch planning, and Batch Job
 submission.  Acts as a replacement for OWL CAL code wrapper scripts.
 
+### Core execution in container
+
+```
+python -m hstdputils.process <output_bucket>  <batch_name>  <ipppssoots....>
+```
+
+As currently implemented the process routine supports multiple ipppsoots in
+the same batch and will put them all in the same output S3 target.
+
+### Initial planning based on IPPPSSOOT's to determine RAM and CPU requirements
+
+```
+python -m hstdputils.plan output_bucket batch_name ipppssoots... >plan.out
+```
+
+The planner is intended to map IPPPSSOOT's onto appropriate resources and
+executables.   Currently it is stubbed at the instrument level to determine
+resource requirements but in principle could determine requirements based on
+a database and individual IPPPSSOOT's.  This resource determination is critical
+to the operation of AWS Batch and the type and number of worker nodes which
+will be automatically created.
+
 ## scripts
 
 Glue scripts which make it easy to initialize different environments
 and execute HST processing in the container.  Provides a clean Docker
 run command line with additional functionality like combined log
 capture and metrics collection, exported to S3.
+
+### Docker run command for AWS
+
+```
+hstdp-process  <output_bucket>  <batch-name>   <ipppssoots...>
+```
+
+This command configures CRDS for S3, captures metrics, captures a combined
+log, and alls hstdputils.process mentioned above.
+
+### Docker run command for laptop
+
+```
+hstdputils-docker-remote-process
+```
+
+For offsite laptop use.  Downloads required files from STScI CRDS.
+
+```
+hstdputils-docker-onsite-process  <ipppssoot's...>
+```
+
+For onsite use.  Uses onsite serverless configuration and /grp/crds/cache.
+
+```
+hstdputils-docker-run-container <command...>
+```
+
+Just run whatever command is given,  do not assume hstdp-process.
+
+```
+hstdputils-docker-run-pipeline <ipppssoot's...>
+```
 
 ## batch
 
@@ -33,4 +88,16 @@ with AWS console wizards.
 This package was originally prototyped to target AWS batch but elements
 are equally applicable to other container execution approaches and/or
 more native approaches such as HTCondor.
+
+### Command to submit plan to Batch
+
+This command is the only direct tie to Batch:
+
+```
+python -m hstdputils.submit  plan.out
+```
+
+Potentially other versions of submit could submit plans in other workflow
+environments,  wherever it's useful to know CPU and RAM requirements in
+advance.
 
