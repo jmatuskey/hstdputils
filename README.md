@@ -27,7 +27,7 @@ python -m hstdputils.process <output_bucket>  <batch_name>  <ipppssoots....>
 As currently implemented the process routine supports multiple ipppsoots in
 the same batch and will put them all in the same output S3 target.
 
-### Initial planning based on IPPPSSOOT's to determine RAM and CPU requirements
+#### Initial planning based on IPPPSSOOT's to determine RAM and CPU requirements
 
 ```
 python -m hstdputils.plan <output_bucket>  <batch_name> < ipppssoots...> >plan.out
