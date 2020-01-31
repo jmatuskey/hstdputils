@@ -26,3 +26,4 @@ RUN pip install --upgrade git+https://github.com/jaytmiller/hstdputils.git
 WORKDIR /home/developer
 USER developer
 
+CMD ["/bin/bash"]
