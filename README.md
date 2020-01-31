@@ -18,7 +18,7 @@ perhaps Lambdas) and within the hstdp-container.  Provides generalized
 processing for HST IPPPSSOOT's, Batch planning, and Batch Job
 submission.  Acts as a replacement for OWL CAL code wrapper scripts.
 
-### Core execution in container
+#### Core execution in container
 
 ```
 python -m hstdputils.process <output_bucket>  <batch_name>  <ipppssoots....>
@@ -47,7 +47,7 @@ and execute HST processing in the container.  Provides a clean Docker
 run command line with additional functionality like combined log
 capture and metrics collection, exported to S3.
 
-### Docker run command for AWS
+#### Docker run command for AWS
 
 ```
 hstdp-process  <output-bucket>  <batch-name>   <ipppssoots...>
@@ -56,7 +56,7 @@ hstdp-process  <output-bucket>  <batch-name>   <ipppssoots...>
 This command configures CRDS for S3, captures metrics, captures a combined
 log, and runs python -m hstdputils.process mentioned above.
 
-### Run command for laptop hstdputils pip installs;  CAL code not included
+#### Run command for laptop hstdputils pip installs;  CAL code not included
 
 ```
 hstdputils-remote-process  <ipppssoot's...>
@@ -89,7 +89,7 @@ This package was originally prototyped to target AWS batch but elements
 are equally applicable to other container execution approaches and/or
 more native approaches such as HTCondor.
 
-### Command to submit plan to Batch
+#### Command to submit plan to Batch
 
 This command is the only direct tie to Batch:
 
