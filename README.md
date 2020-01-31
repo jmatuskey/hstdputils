@@ -65,23 +65,28 @@ mentioned above.
 
 #### Run command for laptop hstdputils pip installs;  CAL code not included
 
+For offsite laptop use.  Downloads required files from STScI CRDS:
+
 ```
 hstdputils-remote-process  <ipppssoot's...>
 ```
 
-For offsite laptop use.  Downloads required files from STScI CRDS.
+For onsite use.  Uses onsite serverless configuration and /grp/crds/cache:
 
 ```
 hstdputils-onsite-process  <ipppssoot's...>
 ```
 
-For onsite use.  Uses onsite serverless configuration and /grp/crds/cache.
+Just run whatever command is given in the container, do not assume
+hstdp-process will be called:
 
 ```
 hstdputils-docker-run-container <command...>
 ```
 
-Just run whatever command is given,  do not assume hstdp-process.
+Run hstdp-process in a local container, for testing outside batch
+schedulers.  Use "none" for output-bucket and batch-name to avoid S3
+results copy-out.
 
 ```
 hstdputils-docker-run-pipeline <output-bucket> <batch-name> <ipppssoot's...>
