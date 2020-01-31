@@ -1,5 +1,7 @@
 #! /bin/bash
 
+# Primary command script passed into Batch container runs
+
 # hstdp-process  s3-output-bucket   batch-name    ipppssoots....
 
 source hstdputils-s3-env

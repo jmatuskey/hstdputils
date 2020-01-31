@@ -30,7 +30,7 @@ the same batch and will put them all in the same output S3 target.
 ### Initial planning based on IPPPSSOOT's to determine RAM and CPU requirements
 
 ```
-python -m hstdputils.plan output_bucket batch_name ipppssoots... >plan.out
+python -m hstdputils.plan <output_bucket>  <batch_name> < ipppssoots...> >plan.out
 ```
 
 The planner is intended to map IPPPSSOOT's onto appropriate resources and
@@ -50,22 +50,22 @@ capture and metrics collection, exported to S3.
 ### Docker run command for AWS
 
 ```
-hstdp-process  <output_bucket>  <batch-name>   <ipppssoots...>
+hstdp-process  <output-bucket>  <batch-name>   <ipppssoots...>
 ```
 
 This command configures CRDS for S3, captures metrics, captures a combined
-log, and alls hstdputils.process mentioned above.
+log, and runs python -m hstdputils.process mentioned above.
 
-### Docker run command for laptop
+### Run command for laptop hstdputils pip installs;  CAL code not included
 
 ```
-hstdputils-docker-remote-process
+hstdputils-remote-process  <ipppssoot's...>
 ```
 
 For offsite laptop use.  Downloads required files from STScI CRDS.
 
 ```
-hstdputils-docker-onsite-process  <ipppssoot's...>
+hstdputils-onsite-process  <ipppssoot's...>
 ```
 
 For onsite use.  Uses onsite serverless configuration and /grp/crds/cache.
@@ -77,7 +77,7 @@ hstdputils-docker-run-container <command...>
 Just run whatever command is given,  do not assume hstdp-process.
 
 ```
-hstdputils-docker-run-pipeline <ipppssoot's...>
+hstdputils-docker-run-pipeline <output-bucket> <batch-name> <ipppssoot's...>
 ```
 
 ## batch
@@ -96,6 +96,9 @@ This command is the only direct tie to Batch:
 ```
 python -m hstdputils.submit  plan.out
 ```
+
+For each job listed in `plan.out`,  hstputils.submit queues one Batch
+job.
 
 Potentially other versions of submit could submit plans in other workflow
 environments,  wherever it's useful to know CPU and RAM requirements in
