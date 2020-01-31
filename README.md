@@ -53,15 +53,18 @@ and execute HST processing in the container.
 Provides a clean Docker command line with additional functionality
 like combined log capture and metrics collection, exported to S3.
 
-#### Docker run command for AWS
-
-```
-hstdp-process  <output-bucket>  <batch-name>   <ipppssoots...>
-```
+#### Docker run command for AWS  (Key entry point)
 
 This command configures CRDS for S3, captures CPU and memory metrics,
 captures a combined log, and runs python -m hstdputils.process
-mentioned above.
+mentioned above:
+
+```
+hstdp-process  <output-bucket>  <batch-prefix>   <ipppssoots...>
+```
+
+Metrics and the processing log are copied to the S3 target
+based on <output-bucket> and <batch-prefix>.
 
 #### Run command for laptop hstdputils pip installs;  CAL code not included
 
@@ -83,6 +86,9 @@ hstdp-process will be called:
 ```
 hstdputils-docker-run-container <command...>
 ```
+
+(Try /bin/bash for a command to land you inside the container at
+an interactives shell prompt.)
 
 Run hstdp-process in a local container, for testing outside batch
 schedulers.  Use "none" for output-bucket and batch-name to avoid S3
