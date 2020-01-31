@@ -15,7 +15,7 @@ Docker image for HST CAL augmented for AWS and these utilities.
 
 Auxilliary package which is installed both on Batch control nodes (or
 perhaps Lambdas) and within the hstdp-container.  Provides generalized
-processing for HST IPPPSSOOT's, Batch planning, and Batch Job
+processing for HST IPPPSSOOT's, job planning, and Batch Job
 submission.  Acts as a replacement for OWL CAL code wrapper scripts.
 
 #### Core execution in container
@@ -24,10 +24,15 @@ submission.  Acts as a replacement for OWL CAL code wrapper scripts.
 python -m hstdputils.process <output_bucket>  <batch_name>  <ipppssoots....>
 ```
 
-As currently implemented the process routine supports multiple ipppsoots in
-the same batch and will put them all in the same output S3 target.
+hstdputils.process obtains data and references for the specified ipppssoot's,
+processes appropriately for each ippssoot,  and copies output files to an
+S3 target based on output_bucket, batch_name, and the copied filename.  If
+output_bucket ==  "none" then no S3 results saving is performed.
 
-#### Initial planning based on IPPPSSOOT's to determine RAM and CPU requirements
+As currently implemented the process routine supports multiple ipppsoots in
+the same batch and will put them all in the same output S3 target directory.
+
+#### Job planning based on IPPPSSOOT's to determine RAM and CPU requirements
 
 ```
 python -m hstdputils.plan <output_bucket>  <batch_name> < ipppssoots...> >plan.out
@@ -43,9 +48,10 @@ will be automatically created.
 ## scripts
 
 Glue scripts which make it easy to initialize different environments
-and execute HST processing in the container.  Provides a clean Docker
-run command line with additional functionality like combined log
-capture and metrics collection, exported to S3.
+and execute HST processing in the container.
+
+Provides a clean Docker command line with additional functionality
+like combined log capture and metrics collection, exported to S3.
 
 #### Docker run command for AWS
 
@@ -53,8 +59,9 @@ capture and metrics collection, exported to S3.
 hstdp-process  <output-bucket>  <batch-name>   <ipppssoots...>
 ```
 
-This command configures CRDS for S3, captures metrics, captures a combined
-log, and runs python -m hstdputils.process mentioned above.
+This command configures CRDS for S3, captures CPU and memory metrics,
+captures a combined log, and runs python -m hstdputils.process
+mentioned above.
 
 #### Run command for laptop hstdputils pip installs;  CAL code not included
 
@@ -98,9 +105,10 @@ python -m hstdputils.submit  plan.out
 ```
 
 For each job listed in `plan.out`,  hstputils.submit queues one Batch
-job.
+job.   This command is e.g. run on the Batch control node, input Lambda,
+etc.
 
 Potentially other versions of submit could submit plans in other workflow
-environments,  wherever it's useful to know CPU and RAM requirements in
+environments,  wherever it's useful to know CPU and memory requirements in
 advance.
 
